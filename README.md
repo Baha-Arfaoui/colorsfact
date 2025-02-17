@@ -21,7 +21,11 @@ This project is designed to match clothing products based on their dominant colo
 ## Technologies
 
 Python 3.x
+
 FAISS: Library for efficient similarity search and clustering of high-dimensional vectors.
+
 NumPy: For numerical operations and vector manipulations.
+
 OpenCV or Pillow: For image processing and color extraction.
+
 OpenAI.
