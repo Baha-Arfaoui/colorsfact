@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Product Color Matching with FAISS and Cosine Similarity
 
 ## Overview
@@ -30,6 +29,3 @@ NumPy: For numerical operations and vector manipulations.
 OpenCV or Pillow: For image processing and color extraction.
 
 OpenAI.
-=======
-# colorsfact
->>>>>>> cecba140a07a21fdaeb0a1cc8f4b8f661609eb7c

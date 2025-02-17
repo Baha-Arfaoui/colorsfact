@@ -1,0 +1,158 @@
+
+Ontologie:
+  Hauts: T-shirt, Polo, Chemise, Col-roulés, Sweatshirt, Hoodie, Pull, Cardigan, Veste, Blouson, Manteau, Parka, Trench 
+  Bas: Pantalons, Jean, Short, Jogging, Chinos, Jupes/Robes, Combinaisons
+  Ensembles habillés: Costumes, Tailleurs, Pantalon habillé, Blazer, Robe de soirée
+  Chaussures: Sneakers, Bottes, Chaussures de ville, Escarpins, Talons, Sandales
+  Accessoires: Sac à main, Sac à dos, Lunettes, Bonnet, Casquettes, Ceinture, Montre
+
+Outfit: 
+  T-shirt: 
+    Casual été: Jean, Lunettes, Sneakers
+    Casual hiver: Jean, Sneakers, Cardigan, Parka, Manteau, Bonnet
+    Sportswear: Jogging, Sneakers, Hoodie, Casquettes
+    Professionnel: Chaussures de ville, Pantalons, Blazer, Ceinture
+
+  Polo:
+    Casual été: Jean, Lunettes, Sneakers
+    Casual hiver: Jean, Sneakers, Cardigan, Parka, Manteau, Bonnet
+    Sportswear: Cargo, Sneakers, Veste, Casquette
+    Professionnel: Chaussures de ville, Chinos, Blazer, Ceinture
+
+  Chemise:
+    Casual été: Short, Chinos, Lunettes, Sneakers
+    Casual hiver: Jean, Sneakers, Cardigan, Parka, Manteau, Bonnet
+    Professionnel: Chaussures de ville, Costume, Ceinture
+
+  Col-roulé:
+    Casual hiver: Jean, Pantalon, Sneakers, Cardigan, Parka, Trench, Bonnet
+    Professionnel: Chaussures de ville, Costume, Chinos, Ceinture, Blazer
+
+  Sweatshirt:
+    Casual été: Short, Chinos, Sneakers, Casquette
+    Casual hiver: Jean, Pantalon, Manteau, Sneakers, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sac à dos, Casquette
+    Professionnel: Pantalon habillé, Blazer, Chaussures de ville, Ceinture
+
+  Hoodie:
+    Casual été: Short, Chinos, Sneakers, Casquette
+    Casual hiver: Jean, Pantalon, Parka, Manteau, Sneakers, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sac à dos, Casquette
+    Professionnel: Pantalon habillé, Blazer, Chaussures de ville, Ceinture
+
+  Pull:
+    Casual été: Short, Chinos, Sneakers, Casquette
+    Casual hiver: Jean, Pantalon, Parka, Manteau, Sneakers, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sac à dos, Casquette
+    Professionnel: Pantalon habillé, Blazer, Chaussures de ville, Ceinture
+
+  Cardigan:
+    Casual été: Short, Chinos, Sneakers, Casquette
+    Casual hiver: Jean, Pantalon, Parka, Manteau, Bottes, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sac à dos, Casquette
+    Professionnel: Pantalon habillé, Blazer, Chaussures de ville, Ceinture
+
+  Veste:
+    Casual 1: Col roulé, Sneakers, Jean
+    Casual 2: Hoodie, Pantalon, Chinos, Sneakers
+    Sportswear: Jogging, Cargo, Sneakers, Sweatshirt, Hoodie, Casquette
+    Professionnel: Pantalon habillé, Col roulé, Chemise, Chaussures de ville, Ceinture
+
+  Blouson:
+    Casual 1: Col roulé, Sneakers, Jean, Casquette
+    Casual 2: Sweatshirt, Pantalon, Sneakers, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sweatshirt, Hoodie, Casquette
+    Professionnel: Pantalon habillé, Col roulé, Chemise, Mocassins, Ceinture
+
+  Parka:
+    Casual 1: Col roulé, Bottes, Jean, Casquette
+    Casual 2: Sweatshirt, Pantalon, Sneakers, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sweatshirt, Hoodie, Casquette
+    Professionnel: Pantalon habillé, Col roulé, Mocassins, Ceinture
+
+  Trench:
+    Casual 1: Col roulé, Bottes, Pantalon, Bonnet
+    Casual 2: Sweatshirt, Jean, Sneakers, Bonnet
+    Sportswear: Jogging, Cargo, Sneakers, Sweatshirt, Hoodie, Casquette
+    Professionnel: Costume, Col roulé, Chemise, Mocassins, Ceinture
+
+  Pantalons:
+    Casual été: Sneakers, T-shirt, Chemise, Casquette
+    Casual hiver: Col roulé, Hoodie, Bottes, Sneakers, Bonnet
+    Sportswear: Hoodie, Sac à dos, Sneakers, Manteau
+    Professionnel: Chaussures de ville, Chemise, Blazer
+
+  Jean:
+    Casual été: Sneakers, T-shirt, Chemise, Casquette
+    Casual hiver: Col roulé, Hoodie, Bottes, Sneakers, Bonnet
+    Sportswear: Hoodie, Sac à dos, Sneakers, Manteau
+    Professionnel: Chaussures de ville, Chemise, Blazer
+
+  Short:
+    Casual été: T-shirt, Chemise, Sneakers, Sandales, Casquette
+    Casual été (Femme): T-shirt, Chemise, Sneakers, Sandales, Sac à main
+    Sportswear: Hoodie, Sneakers, Sac à dos, Casquette
+    Professionnel (Femme): Chemise, Blazer, Chaussures de ville, Ceinture, Sac à main
+
+  Jogging:
+    Casual été: T-shirt, Sneakers, Casquette
+    Casual hiver: Col roulé, Doudoune, Bottes, Bonnet
+    Casual hiver: Hoodie, Manteau, Sneakers, Bonnet
+    Sportswear: Hoodie, Sneakers, Sac à dos, Casquette
+
+  Chinos:
+    Casual été: T-shirt, Chemise, Sneakers, Casquette
+    Casual hiver: Col roulé, Manteau, Bottes, Bonnet
+    Professionnel: Cardigan, Blazer, Chaussures de ville, Ceinture
+    Professionnel (Femme): Chemise, Blazer, Escarpins, Ceinture, Sac à main
+
+  Jupe:
+    Casual été: Sandales, Ceinture, Chemise, Sac à main
+    Casual hiver: Bottes, Sneakers, Pull, Ceinture, Manteau, Sac à main
+    Sportswear: Sneakers, Sweatshirt, Veste
+    Professionnel: Talons, Escarpins, Tailleur, Ceinture, Sac à main
+
+  Robe:
+    Casual été: Sac à main, Sneakers, Ceinture
+    Casual hiver: Sneakers, Bottes, Manteau, Sac à main, Ceinture
+    Professionnel: Escarpins, Veste, Sac à main, Ceinture
+
+  Combinaison:
+    Casual été: Ceinture, Sneakers, Sandales, Sac à main
+    Casual hiver: Ceinture, Manteau, Veste, Bottes, Sneakers
+    Soirée: Talons, Sac à main, Ceinture
+    Professionnel: Escarpins, Talons, Veste, Ceinture
+
+  Costume:
+    Professionnel: Chemise, Chaussures de ville, Ceinture
+    Professionnel: Col roulé, Sneakers, Ceinture
+    Professionnel (Femme): Col roulé, Talons, Sac à main, Ceinture
+    Professionnel (Femme): Chemise, Escarpins, Sac à main, Ceinture
+
+  Tailleur:
+    Casual été (Femme): T-shirt, Sneakers, Sandales, Sac à main, Ceinture
+    Casual hiver: Col roulé, Bottes, Sac à main, Manteau
+    Professionnel: Chemise, Escarpins, Sac à main, Ceinture
+
+  Pantalon habillé:
+    Casual été: T-shirt, Chemise, Sneakers, Ceinture
+    Casual hiver: Col roulé, Pull, Manteau, Bottes, Bonnet
+    Professionnel (Femme): Chemise, Blazer, Escarpins, Ceinture, Sac à main
+    Professionnel: Chemise, Blazer, Chaussures de ville, Ceinture
+
+  Blazer:
+    Casual été: T-shirt, Sneakers, Casquette, Pantalon
+    Casual hiver: Col roulé, Pull, Parka, Manteau, Bottes, Bonnet
+    Professionnel (Femme): Chemise, Jupe, Pantalon habillé, Escarpins, Sac à main
+    Professionnel: Chemise, Blazer, Chaussures de ville, Pantalon habillé
+
+  Robe de soirée:
+    Chic (Femme): Talons, Escarpins, Sac à main, Lunettes
+    Chic hiver (Femme): Talons, Escarpins, Manteau, Sac à main
+
+  Sneakers:
+    Casual été: T-shirt, Jean, Pantalon, Casquette
+    Casual hiver: Hoodie, Pull, Doudoune, Manteau, Bonnet, Pantalon
+    Sportswear: Jogging, Hoodie, Sac à dos, Casquette
+    Professionnel: Pantalon habillé, Blazer, Chemise, Ceinture
+

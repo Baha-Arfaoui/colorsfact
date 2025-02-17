@@ -1,0 +1,8 @@
+faiss_index:
+  path: colorfact/vector_store/faiss_index.idx
+  
+
+image_vision_model:
+  llm: gpt-4o
+  llm_temperature: 0.0
+  prompt: ""
