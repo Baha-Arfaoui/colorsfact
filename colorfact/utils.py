@@ -299,9 +299,8 @@ class extract_colors_image():
 
 class matching_products():
 
-    def __init__(self, i):
-        self.image_path = image_path
-        self.colors = self.extract_dominant_color_from_segmented()
+    def __init__(self, ):
+        pass
 
     def find_matching_products(self,query_colors, index, df, top_k=5):
         query_colors = np.array(query_colors, dtype="float32")

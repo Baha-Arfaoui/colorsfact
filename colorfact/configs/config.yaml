@@ -1,6 +1,8 @@
 faiss_index:
   path: colorfact/vector_store/faiss_index.idx
   
+mapping_json_file:
+  path: colorfact/mapping/product_mapping.json
 
 image_vision_model:
   llm: gpt-4o
