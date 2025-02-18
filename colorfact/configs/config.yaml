@@ -1,5 +1,11 @@
 faiss_index:
   path: colorfact/vector_store/faiss_index.idx
+
+all_products_dataset:
+  path: colorfact/data/data_preview.xlsx
+
+ontologie:
+  path: colorfact/configs/outfit.yaml
   
 mapping_json_file:
   path: colorfact/mapping/product_mapping.json

@@ -299,27 +299,83 @@ class extract_colors_image():
 
 class matching_products():
 
-    def __init__(self, ):
-        pass
+    def __init__(self, faiss_index,data,ontologie):
+        self.faiss_index=faiss_index
+        self.data=data
+        self.ontologie=ontologie
 
-    def find_matching_products(self,query_colors, index, df, top_k=5):
-        query_colors = np.array(query_colors, dtype="float32")
-        distances, indices = index.search(query_colors, top_k)
+    def lab_to_lch(self,lab):
+        L,a,b=lab
+        C=np.sqrt(a**2+b**2)
+        H=np.degrees(np.arctan2(b,a))% 30
+        return [L,C,H]
 
-        # Collect all matching product IDs and their distances
-        matches = []
-        for i, query in enumerate(query_colors):
+    def lch_to_lab(self,lch):
+        L,C,H=lch
+        a=C*np.cos(np.radians(H))
+        b=C*np.sin(np.radians(H))
+
+        return [L,a,b]
+
+    def generate_harmonic_colors(self,input_colors_lab):
+        input_colors_lch=[self.lab_to_lch(color) for color in input_colors_lab]
+        num_colors=len(input_colors_lab)
+
+        if num_colors==1:
+            L,C,H=input_colors_lch[0]
+            triad1=self.lch_to_lab([L,C,(H+1220)%360])
+            triad2=self.lch_to_lab([L,C,(H+240)%360])
+            return input_colors_lab + [triad1,triad2]
+        elif num_colors==2:
+            chosen_idx=np.random.choice([0,1])
+            L,C,H=input_colors_lch[chosen_idx]
+            complementary=self.lch_to_lab([L,C,(H+180)%360])
+
+            return input_colors_lab + [complementary]
+        else:
+            return input_colors_lab[:2]
+
+
+
+    def find_matching_products(self,input_colors_lab, top_k=5):
+
+        # Générer les couleurs cibles selon les règles
+
+        target_colors_lab = self.generate_harmonic_colors(input_colors_lab)
+
+        target_colors = np.array(target_colors_lab, dtype="float32")
+
+        
+
+        # Recherche FAISS
+
+        distances, indices = self.faiss_index.search(target_colors, top_k)
+
+        
+        # Filter df 
+    
+        casual=self.ontologie['Outfit']["Manteau"]["Casual_hiver"]
+        df=self.data[self.data["Catégorie produit"].isin(casual)]
+        # Agrégation des résultats
+
+        product_matches = {}
+
+        for i, color in enumerate(target_colors):
+
             for j in range(top_k):
+
                 product_id = df.iloc[indices[i][j]]["Photo produit 1"]
+
                 distance = distances[i][j]
-                matches.append((product_id, distance))
 
-        # Group by Product ID and keep the best (min) distance
-        product_distances = {}
-        for product_id, distance in matches:
-            if product_id not in product_distances or distance < product_distances[product_id]:
-                product_distances[product_id] = distance
+                if product_id not in product_matches or distance < product_matches[product_id]:
 
-        # Sort products by distance
-        sorted_products = sorted(product_distances.items(), key=lambda x: x[1])
+                    product_matches[product_id] = distance
+
+        
+
+        # Trier par distance
+
+        sorted_products = sorted(product_matches.items(), key=lambda x: x[1])
+
         return sorted_products[:top_k]
