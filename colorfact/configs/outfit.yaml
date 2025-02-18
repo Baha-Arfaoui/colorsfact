@@ -1,10 +1,49 @@
 
 Ontologie:
-  Hauts: T-shirt, Polo, Chemise, Col-roulé, Sweatshirt, Hoodie, Pull, Cardigan, Veste, Blouson, Manteau, Parka, Trench 
-  Bas: Pantalons, Jean, Short, Jogging, Chinos, Jupe , Robe, Combinaison
-  Ensembles habillés: Costume, Tailleur, Pantalon habillé, Blazer, Robe de soirée
-  Chaussures: Sneakers, Bottes, Chaussures de ville, Escarpins, Talons, Sandales
-  Accessoires: Sac à main, Sac à dos, Lunettes, Bonnet, Casquettes, Ceinture, Montre
+  Hauts: 
+    - T-shirt
+    - Polo
+    - Chemise
+    - Col-roulé
+    - Sweatshirt
+    - Hoodie
+    - Pull
+    - Cardigan
+    - Veste
+    - Blouson
+    - Manteau
+    - Parka
+    - Trench 
+  Bas: 
+    - Pantalons
+    - Jean
+    - Short
+    - Jogging
+    - Chinos
+    - Jupe 
+    - Robe
+    - Combinaison
+  Ensembles habillés: 
+    - Costume
+    - Tailleur
+    - Pantalon habillé
+    - Blazer
+    - Robe de soirée
+  Chaussures: 
+    - Sneakers
+    - Bottes
+    - Chaussures de ville
+    - Escarpins
+    - Talons
+    - Sandales
+  Accessoires: 
+    - Sac à main
+    - Sac à dos
+    - Lunettes
+    - Bonnet
+    - Casquettes
+    - Ceinture
+    - Montre
 
 Outfit: 
   T-shirt: 
