@@ -305,77 +305,129 @@ class matching_products():
         self.ontologie=ontologie
 
     def lab_to_lch(self,lab):
-        L,a,b=lab
-        C=np.sqrt(a**2+b**2)
-        H=np.degrees(np.arctan2(b,a))% 30
-        return [L,C,H]
+        L, a, b = lab
+        C = np.sqrt(a**2 + b**2)
+        H = np.degrees(np.arctan2(b, a)) % 360  # Normalisation correcte
+        return [L, C, H]
 
     def lch_to_lab(self,lch):
-        L,C,H=lch
-        a=C*np.cos(np.radians(H))
-        b=C*np.sin(np.radians(H))
-
-        return [L,a,b]
+        L, C, H = lch
+        a = C * np.cos(np.radians(H))
+        b = C * np.sin(np.radians(H))
+        return [L, a, b]
 
     def generate_harmonic_colors(self,input_colors_lab):
-        input_colors_lch=[self.lab_to_lch(color) for color in input_colors_lab]
-        num_colors=len(input_colors_lab)
-
-        if num_colors==1:
-            L,C,H=input_colors_lch[0]
-            triad1=self.lch_to_lab([L,C,(H+1220)%360])
-            triad2=self.lch_to_lab([L,C,(H+240)%360])
-            return input_colors_lab + [triad1,triad2]
-        elif num_colors==2:
-            chosen_idx=np.random.choice([0,1])
-            L,C,H=input_colors_lch[chosen_idx]
-            complementary=self.lch_to_lab([L,C,(H+180)%360])
-
-            return input_colors_lab + [complementary]
-        else:
-            return input_colors_lab[:2]
-
-
-
-    def find_matching_products(self,input_colors_lab, top_k=5):
-
-        # Générer les couleurs cibles selon les règles
-
-        target_colors_lab = self.generate_harmonic_colors(input_colors_lab)
-
-        target_colors = np.array(target_colors_lab, dtype="float32")
-
-        
-
-        # Recherche FAISS
-
-        distances, indices = self.faiss_index.search(target_colors, top_k)
-
-        
-        # Filter df 
     
-        casual=self.ontologie['Outfit']["Manteau"]["Casual_hiver"]
-        df=self.data[self.data["Catégorie produit"].isin(casual)]
-        # Agrégation des résultats
+        input_colors_lch = [self.lab_to_lch(color) for color in input_colors_lab]
+        num_colors = len(input_colors_lab)
 
-        product_matches = {}
+        if num_colors == 1:
+            L, C, H = input_colors_lch[0]
+            triad1 = self.lch_to_lab([L, C, (H + 120) % 360])
+            triad2 = self.lch_to_lab([L, C, (H + 240) % 360])
+            return input_colors_lab + [triad1, triad2]
 
-        for i, color in enumerate(target_colors):
+        elif num_colors == 2:
+            chosen_idx = np.random.choice([0, 1])
+            L, C, H = input_colors_lch[chosen_idx]
+            complementary = self.lch_to_lab([L, C, (H + 180) % 360])
+            return input_colors_lab + [complementary]
 
-            for j in range(top_k):
+        elif num_colors == 3:
+            chosen_indices = np.random.choice([0, 1, 2], size=2, replace=False)
+            selected_colors = [input_colors_lab[i] for i in chosen_indices]
+            return selected_colors
 
-                product_id = df.iloc[indices[i][j]]["Photo produit 1"]
+        return input_colors_lab
 
-                distance = distances[i][j]
 
-                if product_id not in product_matches or distance < product_matches[product_id]:
+    def recommend_outfit(self,input_category, input_colors, outfit_type, faiss_index, df, ontology, top_k=5, min_items=1):
 
-                    product_matches[product_id] = distance
+        try:
+
+            required_items = ontology["Outfit"][input_category][outfit_type]
+
+        except KeyError:
+
+            raise ValueError(f"Invalid category '{input_category}' or outfit type '{outfit_type}'")
+
+
+
+        recommendations = {}
 
         
 
-        # Trier par distance
+        for item_category in required_items:
 
-        sorted_products = sorted(product_matches.items(), key=lambda x: x[1])
+            # Step 1: Search globally (without filtering first)
+            input_colors = self.generate_harmonic_colors(input_colors)
 
-        return sorted_products[:top_k]
+            n_neighbors = top_k * 3  # Overfetch to account for category filtering
+
+            distances, indices = faiss_index.search(np.array(input_colors, dtype="float32"), n_neighbors)
+
+            
+
+            # Step 2: Map indices to product IDs and filter by category
+
+            seen_ids = set()
+
+            item_matches = []
+
+            
+
+            # Flatten all indices/distances across input colors
+
+            for color_idx in range(len(input_colors)):
+
+                for rank_idx in range(n_neighbors):
+
+                    global_idx = indices[color_idx][rank_idx]
+
+                    product_id = df.iloc[global_idx]["Photo produit 1"]
+
+                    product_row = df.iloc[global_idx]
+
+                    
+
+                    # Check if product matches the target category (case-insensitive)
+
+                    if product_row["Catégorie produit"].lower() == item_category.lower():
+
+                        if product_id not in seen_ids:
+
+                            seen_ids.add(product_id)
+
+                            item_matches.append({
+
+                                "product_id": product_id,
+
+                                "distance": distances[color_idx][rank_idx],
+
+                                "metadata": product_row.to_dict()
+
+                            })
+
+                            # Break early if we have enough matches
+
+                            if len(item_matches) >= top_k:
+
+                                break
+
+            
+
+            # Step 3: Limit to top_k and handle min_items
+
+            final_matches = item_matches[:top_k]
+
+            if len(final_matches) < min_items:
+
+                print(f"Warning: Only {len(final_matches)} {item_category} found (min_items={min_items})")
+
+            
+
+            recommendations[item_category] = final_matches
+
+        
+
+        return recommendations
