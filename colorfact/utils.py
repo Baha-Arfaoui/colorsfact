@@ -16,7 +16,8 @@ import os
 import yaml
 from dotenv import load_dotenv
 from pyprojroot import here
-
+import ast
+import faiss
 load_dotenv()
 
 
@@ -121,7 +122,7 @@ class extract_colors_url():
         first_item = float(prop_list[0])
         second_item = float(prop_list[1])
     
-        if (first_item > 0.7):  # Changed condition to use 0.85 instead of 85
+        if (first_item > 0.8):  # Changed condition to use 0.85 instead of 85
             return [color_list[0]]
         elif (first_item + second_item > 0.8):  # Changed condition to use 0.9 instead of 90
             return [color_list[0],color_list[1]]
@@ -299,8 +300,7 @@ class extract_colors_image():
 
 class matching_products():
 
-    def __init__(self, faiss_index,data,ontologie):
-        self.faiss_index=faiss_index
+    def __init__(self,data,ontologie):
         self.data=data
         self.ontologie=ontologie
 
@@ -341,93 +341,64 @@ class matching_products():
         return input_colors_lab
 
 
-    def recommend_outfit(self,input_category, input_colors, outfit_type, faiss_index, df, ontology, top_k=5, min_items=1):
-
+    def recommend_outfit(self,input_category, input_colors, outfit_type, top_k=3):
         try:
-
-            required_items = ontology["Outfit"][input_category][outfit_type]
-
-        except KeyError:
-
-            raise ValueError(f"Invalid category '{input_category}' or outfit type '{outfit_type}'")
-
-
+            required_items = self.ontology["Outfit"][input_category][outfit_type]
+        except KeyError as e:
+            raise ValueError(f"Invalid category or outfit type: {str(e)}")
 
         recommendations = {}
+        similarity_threshold = 0.2  # 90% similarity
 
-        
+        # Generate harmonized colors for input
+        input_colors = self.generate_harmonic_colors(input_colors)
+        query_colors = np.array(input_colors, dtype="float32")
+        faiss.normalize_L2(query_colors)
 
         for item_category in required_items:
+            # Filter data for the given category
+            filtered_data = self.data[self.data["Catégorie produit"] == item_category].copy()
 
-            # Step 1: Search globally (without filtering first)
-            input_colors = self.generate_harmonic_colors(input_colors)
+            # Ensure cielab_colors is correctly formatted
+            filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(ast.literal_eval)
+            filtered_data.dropna(inplace=True)
+            filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(tuple)
+            filtered_data.drop_duplicates(inplace=True)
 
-            n_neighbors = top_k * 3  # Overfetch to account for category filtering
+            # Convert to NumPy array
+            vectors = np.array([list(t) for t in filtered_data["cielab_colors"]], dtype="float32")
+            if vectors.shape[0] == 0:
+                continue  # Skip if no data available
 
-            distances, indices = faiss_index.search(np.array(input_colors, dtype="float32"), n_neighbors)
+            # Normalize and create FAISS index
+            faiss.normalize_L2(vectors)
+            index = faiss.IndexFlatL2(vectors.shape[1])
+            index.add(vectors)
 
-            
-
-            # Step 2: Map indices to product IDs and filter by category
+            # Search for closest matches
+            distances, indices = index.search(query_colors, top_k)
 
             seen_ids = set()
+            matches = []
 
-            item_matches = []
+            for i in range(indices.shape[0]):
+                for j in range(indices.shape[1]):
+                    idx = indices[i][j]
+                    if idx >= len(filtered_data) or distances[i][j] > similarity_threshold:
+                        continue  # Skip invalid or low-similarity matches
 
-            
-
-            # Flatten all indices/distances across input colors
-
-            for color_idx in range(len(input_colors)):
-
-                for rank_idx in range(n_neighbors):
-
-                    global_idx = indices[color_idx][rank_idx]
-
-                    product_id = df.iloc[global_idx]["Photo produit 1"]
-
-                    product_row = df.iloc[global_idx]
-
+                    product_id = filtered_data.iloc[idx]["Photo produit 1"]
+                    if product_id not in seen_ids:
+                        seen_ids.add(product_id)
+                        matches.append({
+                            "product_id": product_id,
+                            "distance": distances[i][j],
+                            "metadata": filtered_data.iloc[idx].to_dict(),
+                        })
                     
+                    if len(matches) >= top_k:
+                        break  # Stop early if enough matches are found
 
-                    # Check if product matches the target category (case-insensitive)
-
-                    if product_row["Catégorie produit"].lower() == item_category.lower():
-
-                        if product_id not in seen_ids:
-
-                            seen_ids.add(product_id)
-
-                            item_matches.append({
-
-                                "product_id": product_id,
-
-                                "distance": distances[color_idx][rank_idx],
-
-                                "metadata": product_row.to_dict()
-
-                            })
-
-                            # Break early if we have enough matches
-
-                            if len(item_matches) >= top_k:
-
-                                break
-
-            
-
-            # Step 3: Limit to top_k and handle min_items
-
-            final_matches = item_matches[:top_k]
-
-            if len(final_matches) < min_items:
-
-                print(f"Warning: Only {len(final_matches)} {item_category} found (min_items={min_items})")
-
-            
-
-            recommendations[item_category] = final_matches
-
-        
+            recommendations[item_category] = matches
 
         return recommendations
