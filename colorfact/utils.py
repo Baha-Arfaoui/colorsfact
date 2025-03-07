@@ -3,7 +3,6 @@ import numpy as np
 import requests
 from sklearn.cluster import KMeans
 from collections import Counter
-from PIL import Image
 import time
 import matplotlib.pyplot as plt
 from urllib.parse import urlparse
@@ -11,13 +10,17 @@ from tqdm import tqdm
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import warnings
-warnings.filterwarnings('ignore')
 import os
 import yaml
 from dotenv import load_dotenv
 from pyprojroot import here
 import ast
+import json
 import faiss
+import base64
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage 
+warnings.filterwarnings('ignore')
 load_dotenv()
 
 
@@ -296,7 +299,106 @@ class extract_colors_image():
         color = self.process_floats(sorted_lab_colors, proportions)
         return color
     
+class get_category():
+    def __init__(self,image_path):
+        self.image_path=image_path
+        self.llm=ChatOpenAI(model="gpt-4o")
+        self.prompt=""" 
+ 
+            You are an AI model specializing in image recognition for fashion products. Your task is to analyze an image of a clothing or accessory item and classify it into a specific category from a predefined list. Additionally, determine whether the item is intended for men (H), women (F), or both (H/F). 
 
+            Use the following list of standard product categories for classification:
+            - T-shirt
+            - Polo
+            - Chemise
+            - Col-roulés
+            - Sweatshirt
+            - Hoodie
+            - Pull
+            - Cardigan
+            - Veste
+            - Blouson
+            - Manteau
+            - Parka
+            - Trench
+            - Pantalons
+            - Jean
+            - Short
+            - Jogging
+            - Chinos
+            - Jupes
+            - Robes
+            - Combinaisons
+            - Costumes
+            - Tailleurs
+            - Pantalon habillé
+            - Blazer
+            - Robe de soirée
+            - Sneakers
+            - Bottes
+            - Chaussures de ville
+            - Escarpins
+            - Talons
+            - Sandales
+            - Sac à main
+            - Sac à dos
+            - Lunettes
+            - Bonnet
+            - Casquettes
+            - Ceinture
+            - Montre
+
+            ### **Rules for Classification**
+            1. **Category Matching:**  
+            - Assign the item to the closest matching category from the list above.
+            - If multiple categories apply, choose the most specific one.
+
+            2. **Gender Classification (`genre` field):**  
+            - "H" if the item is primarily for men.  
+            - "F" if the item is primarily for women.  
+            - "H/F" if the item can be worn by both genders.  
+
+            ### **Output Format (JSON)**
+            Return the result as a structured JSON object like this:
+            
+            {
+                "genre": "H",
+                "category": "T-shirt"
+            }
+
+        """
+        self.base64_image=self.encode_image()
+        self.genre=self.get_category_gender().get("genre")
+        self.category=self.get_category_gender().get("category")
+
+    def encode_image(self,):
+        with open(self.image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode("utf-8")
+        
+    def get_category_gender(self):
+
+        result=self.llm.invoke(
+            [
+                HumanMessage(
+                content=[
+                    {
+                        "type":"text","text":self.prompt
+                    },
+                    {
+                        "type":"image_url",
+                        "image_url":{"url":f"data:image/jpeg;base64,{self.base64_image}"},
+                    },
+
+                ])
+            ])
+        
+        # Clean the string by removing unwanted characters
+        cleaned_output = result.content.strip('```json\n').strip('```')
+
+        # Load it into a JSON object
+        json_data = json.loads(cleaned_output)
+        
+        return json_data
 
 class matching_products():
 
