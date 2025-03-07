@@ -341,11 +341,11 @@ class matching_products():
         return input_colors_lab
 
 
-    def recommend_outfit(self,input_category, input_colors, outfit_type, top_k=3):
+    def recommend_outfit(self,input_category, input_colors, top_k=3):
         try:
-            required_items = self.ontology["Outfit"][input_category][outfit_type]
+            outfit_types = self.ontology["Outfit"][input_category]
         except KeyError as e:
-            raise ValueError(f"Invalid category or outfit type: {str(e)}")
+            raise ValueError(f"Invalid category: {str(e)}")
 
         recommendations = {}
         similarity_threshold = 0.2  # 90% similarity
@@ -355,50 +355,55 @@ class matching_products():
         query_colors = np.array(input_colors, dtype="float32")
         faiss.normalize_L2(query_colors)
 
-        for item_category in required_items:
-            # Filter data for the given category
-            filtered_data = self.data[self.data["Catégorie produit"] == item_category].copy()
+        for outfit_type, required_items in outfit_types.items():
+            outfit_recommendations = {}
 
-            # Ensure cielab_colors is correctly formatted
-            filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(ast.literal_eval)
-            filtered_data.dropna(inplace=True)
-            filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(tuple)
-            filtered_data.drop_duplicates(inplace=True)
+            for item_category in required_items:
+                # Filter data for the given category
+                filtered_data = self.data[self.data["Catégorie produit"] == item_category].copy()
 
-            # Convert to NumPy array
-            vectors = np.array([list(t) for t in filtered_data["cielab_colors"]], dtype="float32")
-            if vectors.shape[0] == 0:
-                continue  # Skip if no data available
+                # Ensure cielab_colors is correctly formatted
+                filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(ast.literal_eval)
+                filtered_data.dropna(inplace=True)
+                filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(tuple)
+                filtered_data.drop_duplicates(inplace=True)
 
-            # Normalize and create FAISS index
-            faiss.normalize_L2(vectors)
-            index = faiss.IndexFlatL2(vectors.shape[1])
-            index.add(vectors)
+                # Convert to NumPy array
+                vectors = np.array([list(t) for t in filtered_data["cielab_colors"]], dtype="float32")
+                if vectors.shape[0] == 0:
+                    continue  # Skip if no data available
 
-            # Search for closest matches
-            distances, indices = index.search(query_colors, top_k)
+                # Normalize and create FAISS index
+                faiss.normalize_L2(vectors)
+                index = faiss.IndexFlatL2(vectors.shape[1])
+                index.add(vectors)
 
-            seen_ids = set()
-            matches = []
+                # Search for closest matches
+                distances, indices = index.search(query_colors, top_k)
 
-            for i in range(indices.shape[0]):
-                for j in range(indices.shape[1]):
-                    idx = indices[i][j]
-                    if idx >= len(filtered_data) or distances[i][j] > similarity_threshold:
-                        continue  # Skip invalid or low-similarity matches
+                seen_ids = set()
+                matches = []
 
-                    product_id = filtered_data.iloc[idx]["Photo produit 1"]
-                    if product_id not in seen_ids:
-                        seen_ids.add(product_id)
-                        matches.append({
-                            "product_id": product_id,
-                            "distance": distances[i][j],
-                            "metadata": filtered_data.iloc[idx].to_dict(),
-                        })
-                    
-                    if len(matches) >= top_k:
-                        break  # Stop early if enough matches are found
+                for i in range(indices.shape[0]):
+                    for j in range(indices.shape[1]):
+                        idx = indices[i][j]
+                        if idx >= len(filtered_data) or distances[i][j] > similarity_threshold:
+                            continue  # Skip invalid or low-similarity matches
 
-            recommendations[item_category] = matches
+                        product_id = filtered_data.iloc[idx]["Photo produit 1"]
+                        if product_id not in seen_ids:
+                            seen_ids.add(product_id)
+                            matches.append({
+                                "product_id": product_id,
+                                "distance": distances[i][j],
+                                "metadata": filtered_data.iloc[idx].to_dict(),
+                            })
+                        
+                        if len(matches) >= top_k:
+                            break  # Stop early if enough matches are found
+
+                outfit_recommendations[item_category] = matches
+
+            recommendations[outfit_type] = outfit_recommendations
 
         return recommendations
