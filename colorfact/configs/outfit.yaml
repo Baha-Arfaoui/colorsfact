@@ -497,20 +497,20 @@ Outfit:
       - Ceinture
 
   Costume:
-    Professionnel: 
+    Professionnel 1: 
       - Chemise
       - Chaussures de ville
       - Ceinture
-    Professionnel: 
+    Professionnel 2: 
       - Col roulé
       - Sneakers
       - Ceinture
-    Professionnel (Femme): 
+    Professionnel (Femme) 1: 
       - Col roulé
       - Talons
       - Sac à main
       - Ceinture
-    Professionnel (Femme): 
+    Professionnel (Femme) 2: 
       - Chemise
       - Escarpins
       - Sac à main

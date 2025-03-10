@@ -305,7 +305,7 @@ class get_category():
         self.llm=ChatOpenAI(model="gpt-4o")
         self.prompt=""" 
  
-            You are an AI model specializing in image recognition for fashion products. Your task is to analyze an image of a clothing or accessory item and classify it into a specific category from a predefined list. Additionally, determine whether the item is intended for men (H), women (F), or both (H/F). 
+            You are an AI model specializing in image recognition for fashion products. Your task is to analyze an image of a clothing or accessory item and classify it into a specific category from a predefined list. Additionally, determine whether the item is intended for men (H), women (F). 
 
             Use the following list of standard product categories for classification:
             - T-shirt
@@ -356,8 +356,7 @@ class get_category():
             2. **Gender Classification (`genre` field):**  
             - "H" if the item is primarily for men.  
             - "F" if the item is primarily for women.  
-            - "H/F" if the item can be worn by both genders.  
-
+           
             ### **Output Format (JSON)**
             Return the result as a structured JSON object like this:
             
@@ -368,8 +367,8 @@ class get_category():
 
         """
         self.base64_image=self.encode_image()
-        self.genre=self.get_category_gender().get("genre")
-        self.category=self.get_category_gender().get("category")
+        # self.genre=self.get_category_gender().get("genre")
+        # self.category=self.get_category_gender().get("category")
 
     def encode_image(self,):
         with open(self.image_path, "rb") as image_file:
@@ -443,9 +442,9 @@ class matching_products():
         return input_colors_lab
 
 
-    def recommend_outfit(self,input_category, input_colors, top_k=3):
+    def recommend_outfit(self,input_category, input_colors,genre,top_k=3):
         try:
-            outfit_types = self.ontology["Outfit"][input_category]
+            outfit_types = self.ontologie["Outfit"][input_category]
         except KeyError as e:
             raise ValueError(f"Invalid category: {str(e)}")
 
@@ -462,7 +461,10 @@ class matching_products():
 
             for item_category in required_items:
                 # Filter data for the given category
-                filtered_data = self.data[self.data["Catégorie produit"] == item_category].copy()
+                filtered_data = self.data[
+                    (self.data["Catégorie produit"] == item_category) & 
+                    (self.data["Genre"] == genre)
+                    ].copy()
 
                 # Ensure cielab_colors is correctly formatted
                 filtered_data["cielab_colors"] = filtered_data["cielab_colors"].apply(ast.literal_eval)
@@ -497,8 +499,8 @@ class matching_products():
                             seen_ids.add(product_id)
                             matches.append({
                                 "product_id": product_id,
-                                "distance": distances[i][j],
-                                "metadata": filtered_data.iloc[idx].to_dict(),
+                                # "distance": distances[i][j],
+                                # "metadata": filtered_data.iloc[idx].to_dict(),
                             })
                         
                         if len(matches) >= top_k:
