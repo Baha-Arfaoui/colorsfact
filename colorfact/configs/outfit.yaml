@@ -4,7 +4,7 @@ Ontologie:
     - T-shirt
     - Polo
     - Chemise
-    - Col-roulé
+    - Col roulé
     - Sweatshirt
     - Hoodie
     - Pull
@@ -15,7 +15,7 @@ Ontologie:
     - Parka
     - Trench 
   Bas: 
-    - Pantalons
+    - Pantalon
     - Jean
     - Short
     - Jogging
@@ -65,7 +65,7 @@ Outfit:
       - Casquettes
     Professionnel: 
       - Chaussures de ville
-      - Pantalons
+      - Pantalon
       - Blazer
       - Ceinture
 
@@ -110,7 +110,7 @@ Outfit:
       - Costume
       - Ceinture
 
-  Col-roulé:
+  Col roulé:
     Casual hiver: 
       - Jean
       - Pantalon
@@ -618,8 +618,6 @@ Outfit:
       - Blazer
       - Chemise
       - Ceinture
-
-  outfits:
   Manteau:
     Casual_hiver:
       - Col roulé
@@ -653,7 +651,7 @@ Outfit:
       - Bottes
       - Sac à main
 
-  Chaussures_de_ville:
+  Chaussures de ville:
     Professionnel_homme:
       - Chemise
       - Blazer

@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import pandas as pd
 import requests
 from sklearn.cluster import KMeans
 from collections import Counter
@@ -10,6 +11,8 @@ from tqdm import tqdm
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import warnings
+import unidecode
+from rapidfuzz import fuzz, process
 import os
 import yaml
 from dotenv import load_dotenv
@@ -20,6 +23,8 @@ import faiss
 import base64
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage 
+from Levenshtein import distance
+
 warnings.filterwarnings('ignore')
 load_dotenv()
 
@@ -398,7 +403,41 @@ class get_category():
         json_data = json.loads(cleaned_output)
         
         return json_data
+class load_data_outfit_mapping():
+    def __init__(self,data_path,outfit_path):
+        self.data_path=data_path
+        self.outfit_path=outfit_path
 
+    def load_dataset(self):
+        def corriger_categorie(categorie, liste_produits):
+            """Corrige les fautes de frappe dans une catégorie."""
+            meilleure_correspondance = categorie
+            distance_min = float('inf')
+
+            for produit in liste_produits:
+                dist = distance(categorie.lower(), produit.lower())
+                if dist < distance_min:
+                    distance_min = dist
+                    meilleure_correspondance = produit
+
+            return meilleure_correspondance
+        
+        with open(self.outfit_path) as cfg:
+            outfit = yaml.load(cfg, Loader=yaml.FullLoader)
+
+        data=pd.read_excel(self.data_path,index_col=0)
+        prod=list(outfit["Outfit"].keys())
+        data['Catégorie produit'] = data['Catégorie produit'].apply(lambda x : corriger_categorie(x,prod))
+        data['Genre']=data["Genre"].apply(lambda x : x.strip())
+        return data
+    
+    def load_outfit(self):
+        with open(self.outfit_path,encoding="utf-8") as cfg:
+            outfit = yaml.load(cfg, Loader=yaml.FullLoader)
+        
+        return outfit
+        
+    
 class matching_products():
 
     def __init__(self,data,ontologie):
@@ -442,7 +481,7 @@ class matching_products():
         return input_colors_lab
 
 
-    def recommend_outfit(self,input_category, input_colors,genre,top_k=3):
+    def recommend_outfit(self,input_category, input_colors,genre,top_k=1):
         try:
             outfit_types = self.ontologie["Outfit"][input_category]
         except KeyError as e:
@@ -455,15 +494,19 @@ class matching_products():
         input_colors = self.generate_harmonic_colors(input_colors)
         query_colors = np.array(input_colors, dtype="float32")
         faiss.normalize_L2(query_colors)
-
+        
         for outfit_type, required_items in outfit_types.items():
             outfit_recommendations = {}
-
+            corrected_genre=[]
+            if genre.lower()=='h' or 'homme' in outfit_type.lower():
+                corrected_genre.extend(['H/F', 'H'])
+            elif genre.lower()=="f" or "femme" in outfit_type.lower():
+                corrected_genre.extend(['H/F', 'F'])
             for item_category in required_items:
                 # Filter data for the given category
                 filtered_data = self.data[
                     (self.data["Catégorie produit"] == item_category) & 
-                    (self.data["Genre"] == genre)
+                    (self.data["Genre"].isin(corrected_genre))
                     ].copy()
 
                 # Ensure cielab_colors is correctly formatted
