@@ -10,16 +10,21 @@ import ollama
 from pathlib import Path
 from base64 import b64encode
 from IPython.display import display, HTML
-
+import yaml
 import pandas as pd 
-from utils import extract_colors_image,extract_colors_url,load_data_outfit_mapping,matching_products,get_category
+from utils import extract_colors_image,extract_colors_url,matching_products,get_category,load_data_outfit_mapping
 
 
-load=load_data_outfit_mapping(data_path="data/data_preview_exploded.xlsx",outfit_path="configs/outfit.yaml")
+load=load_data_outfit_mapping(data_path="data/output.xlsx",outfit_path="configs/outfit.yaml")
+
 # Load outfit recommendations
 outfit_config = load.load_outfit()
 data=load.load_dataset()
-
+# data=pd.read_excel("data/final_output.xlsx",index_col=0) 
+# data['Genre']=data["Genre"].apply(lambda x : x.strip())
+# outfit_path="configs/outfit.yaml"
+# with open(outfit_path,encoding="utf-8") as cfg:
+#             outfit_config = yaml.load(cfg, Loader=yaml.FullLoader)
 class ImageAnalysis:
     def __init__(self):
        pass

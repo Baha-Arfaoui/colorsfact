@@ -12,7 +12,8 @@ from PIL import Image
 from pathlib import Path
 from pyprojroot import here
 from fastapi.staticfiles import StaticFiles
-from utils import extract_colors_image,extract_colors_url,load_data_outfit_mapping,matching_products
+from utils import extract_colors_image,extract_colors_url,matching_products,load_data_outfit_mapping
+import pandas as pd
 # Configuration
 image_folder = 'data/images'
 
@@ -20,12 +21,16 @@ image_analysis = ImageAnalysis()
 selected_image = None
 # Load outfit recommendations from YAML file
 
-load=load_data_outfit_mapping(data_path="data/data_preview_exploded.xlsx",outfit_path="configs/outfit.yaml")
+load=load_data_outfit_mapping(data_path="data/output.xlsx",outfit_path="configs/outfit.yaml")
 # Load outfit recommendations
 outfit_config = load.load_outfit()
 data=load.load_dataset()
-# Load available product images
-
+# # Load available product images
+# data=pd.read_excel("data/final_output.xlsx",index_col=0) 
+# data['Genre']=data["Genre"].apply(lambda x : x.strip())
+# outfit_path="configs/outfit.yaml"
+# with open(outfit_path,encoding="utf-8") as cfg:
+#             outfit_config = yaml.load(cfg, Loader=yaml.FullLoader)
 
 # Helper functions
 def on_select_gallery_image(evt: gr.SelectData):

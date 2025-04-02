@@ -407,37 +407,56 @@ class load_data_outfit_mapping():
     def __init__(self,data_path,outfit_path):
         self.data_path=data_path
         self.outfit_path=outfit_path
+        self.llm=ChatOpenAI(model="gpt-4o")
+        self.category_cache = {}
 
     def load_dataset(self):
-        def corriger_categorie(categorie, liste_produits):
-            """Corrige les fautes de frappe dans une catégorie."""
-            meilleure_correspondance = categorie
-            distance_min = float('inf')
-
-            for produit in liste_produits:
-                dist = distance(categorie.lower(), produit.lower())
-                if dist < distance_min:
-                    distance_min = dist
-                    meilleure_correspondance = produit
-
-            return meilleure_correspondance
         
-        with open(self.outfit_path) as cfg:
+    
+        with open(self.outfit_path,encoding="utf-8") as cfg:
             outfit = yaml.load(cfg, Loader=yaml.FullLoader)
 
         data=pd.read_excel(self.data_path,index_col=0)
         prod=list(outfit["Outfit"].keys())
-        data['Catégorie produit'] = data['Catégorie produit'].apply(lambda x : corriger_categorie(x,prod))
+        # data['Catégorie produit'] = data['Catégorie produit'].apply(lambda x : self.get_level(prod,x))
         data['Genre']=data["Genre"].apply(lambda x : x.strip())
         return data
-    
+        
     def load_outfit(self):
         with open(self.outfit_path,encoding="utf-8") as cfg:
             outfit = yaml.load(cfg, Loader=yaml.FullLoader)
         
         return outfit
-        
-    
+#     def get_level(self, prod, input_str):
+#         if input_str in prod:
+#             return input_str
+
+#         if input_str in self.category_cache:
+#             return self.category_cache[input_str]
+
+#         prompt = f"""
+#             Instructions :
+
+#             Vous êtes un expert en matching des textes. Votre tâche est matcher l'input avec une catégorie dans la liste donné. Output que un seul catégorie
+#             Si l'input ne correspond à aucune catégorie dans la liste donnée envoie l'input ou la catégorie que tu estime la plus proche !
+#             listes des catégories : 
+#             -------------------------
+#             {prod}
+#             -------------------------
+
+#             input : {input_str}
+#             Réponse : 
+#         """
+#         messages = [("system", prompt)]
+
+#         try:
+#             ai_msg = self.llm.invoke(messages)
+#             result = ai_msg.content
+#             self.category_cache[input_str] = result
+#             return result
+#         except Exception as e:
+#             print(f"Error processing '{input_str}': {e}")
+#             return "Error: Could not determine category" #or other default value.
 class matching_products():
 
     def __init__(self,data,ontologie):
@@ -488,7 +507,7 @@ class matching_products():
             raise ValueError(f"Invalid category: {str(e)}")
 
         recommendations = {}
-        similarity_threshold = 0.2  # 90% similarity
+        similarity_threshold = 0.5  # 90% similarity
 
         # Generate harmonized colors for input
         input_colors = self.generate_harmonic_colors(input_colors)
@@ -534,7 +553,8 @@ class matching_products():
                 for i in range(indices.shape[0]):
                     for j in range(indices.shape[1]):
                         idx = indices[i][j]
-                        if idx >= len(filtered_data) or distances[i][j] > similarity_threshold:
+                        # if idx >= len(filtered_data) or distances[i][j] > similarity_threshold:
+                        if idx >= len(filtered_data):
                             continue  # Skip invalid or low-similarity matches
 
                         product_id = filtered_data.iloc[idx]["Photo produit 1"]
